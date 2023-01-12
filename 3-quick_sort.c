@@ -1,89 +1,95 @@
 #include "sort.h"
 
-/**
- * quick_sort - sort an array of ints in ascending order (QuickSort)
- * @array: array of integers
- * @size: number of elements in array
- *
- * Description: implementing Lomuto parittion scheme
- * Return: nothing!
- */
-void quick_sort(int *array, size_t size)
-{
-	if (!array || size < 2)
-		return;
-	quicker_sort(array, size, 0, size - 1);
-}
+void swap_ints(int *a, int *b);
+int lomuto_partition(int *array, size_t size, int left, int right);
+void lomuto_sort(int *array, size_t size, int left, int right);
+void quick_sort(int *array, size_t size);
 
 /**
- * quicker_sort - does the actual recursive QuickSort
- * @array: array of integers
- * @size: number of elements in array
- * @lo: first index of array
- * @hi: last index of array
- *
- * Return: nothing!
+ * swap_ints - Swap two integers in an array.
+ * @a: The first integer to swap.
+ * @b: The second integer to swap.
  */
-void quicker_sort(int *array, size_t size, int lo, int hi)
-{
-	int idx;
-
-	if (lo < hi)
-	{
-		idx = partition(array, size, lo, hi);
-		quicker_sort(array, size, lo, idx - 1);
-		quicker_sort(array, size, idx + 1, hi);
-	}
-}
-/**
- * partition - partition through an array of integers
- * @array: array of integers
- * @size: number of elements of array
- * @lo: first index of array
- * @hi: last index of array
- *
- * Description: all values must be accurate
- * Return: new index position
- */
-int partition(int *array, size_t size, int lo, int hi)
-{
-	int pivot = array[hi], idx = lo, xdi;
-
-	for (xdi = lo; xdi <= hi - 1; xdi++)
-	{
-		if (array[xdi] < pivot)
-		{
-			if (idx != xdi)
-			{
-				swap(&array[idx], &array[xdi]);
-				print_array(array, size);
-			}
-			idx++;
-		}
-	}
-	if (pivot != array[idx])
-	{
-		swap(&array[idx], &array[hi]);
-		print_array(array, size);
-	}
-	return (idx);
-}
-
-/**
- * swap - swaps the address values of two pointers
- * @ptr_a: pointer to integer
- * @ptr_b: pointer to integer
- *
- * Return: nothing!
- */
-void swap(int *ptr_a, int *ptr_b)
+void swap_ints(int *a, int *b)
 {
 	int tmp;
 
-	if (!ptr_a || !ptr_b)
+	tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+/**
+ * lomuto_partition - Order a subset of an array of integers according to
+ *                    the lomuto partition scheme (last element as pivot).
+ * @array: The array of integers.
+ * @size: The size of the array.
+ * @left: The starting index of the subset to order.
+ * @right: The ending index of the subset to order.
+ *
+ * Return: The final partition index.
+ */
+int lomuto_partition(int *array, size_t size, int left, int right)
+{
+	int *pivot, above, below;
+
+	pivot = array + right;
+	for (above = below = left; below < right; below++)
+	{
+		if (array[below] < *pivot)
+		{
+			if (above < below)
+			{
+				swap_ints(array + below, array + above);
+				print_array(array, size);
+			}
+			above++;
+		}
+	}
+
+	if (array[above] > *pivot)
+	{
+		swap_ints(array + above, pivot);
+		print_array(array, size);
+	}
+
+	return (above);
+}
+
+/**
+ * lomuto_sort - Implement the quicksort algorithm through recursion.
+ * @array: An array of integers to sort.
+ * @size: The size of the array.
+ * @left: The starting index of the array partition to order.
+ * @right: The ending index of the array partition to order.
+ *
+ * Description: Uses the Lomuto partition scheme.
+ */
+void lomuto_sort(int *array, size_t size, int left, int right)
+{
+	int part;
+
+	if (right - left > 0)
+	{
+		part = lomuto_partition(array, size, left, right);
+		lomuto_sort(array, size, left, part - 1);
+		lomuto_sort(array, size, part + 1, right);
+	}
+}
+
+/**
+ * quick_sort - Sort an array of integers in ascending
+ *              order using the quicksort algorithm.
+ * @array: An array of integers.
+ * @size: The size of the array.
+ *
+ * Description: Uses the Lomuto partition scheme. Prints
+ *              the array after each swap of two elements.
+ */
+void quick_sort(int *array, size_t size)
+{
+	if (array == NULL || size < 2)
 		return;
 
-	tmp = *ptr_a;
-	*ptr_a = *ptr_b;
-	*ptr_b = tmp;
+	lomuto_sort(array, size, 0, size - 1);
 }
